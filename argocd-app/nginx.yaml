@@ -1,20 +1,22 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Application
 metadata:
-  name: nginx-deployment
-  namespace: app
+  name: nginx
+  namespace: default
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:latest
-        ports:
-        - containerPort: 80
+  destination:
+    namespace: nginx
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: nginx-ingress
+    repoURL: https://helm.nginx.com/stable
+    targetRevision: 0.14.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
