@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: default
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: monitoring
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: grafana
+    helm:
+      values: | 
+        service:
+          name: grafana
+          type: LoadBalancer
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 6.32.11
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  
+#service
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: grafana-svc
+# spec:
+#   type: LoadBalancer
+#   ports:
+#   - port: 80
+#     targetPort: 3000
+#   selector:
+#     app: grafana
